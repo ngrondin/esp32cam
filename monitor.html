@@ -1,0 +1,62 @@
+<html>
+    <header>
+        <title>Camera</title>
+        <script>
+
+            function init() {
+                var elems = document.getElementsByClassName("camera");
+                for(var elem of elems) {
+                    var addr = elem.getAttribute("addr");
+                    elem.innerHTML = "<img id=\"" + addr + "\" src=\"http://" + addr + "/picture\">" + 
+                        "<div class=\"ctlr\">" + 
+                        "<button onclick=\"start('" + addr + "')\">Start</button>" +
+                        "<button onclick=\"stop('" + addr + "')\">Stop</button>" +
+                        "Led: <input type=\"checkbox\" onchange=\"boolstate('" + addr + "', 'led', this.checked)\">" +
+                        "IR: <input type=\"checkbox\" onchange=\"boolstate('" + addr + "', 'ir', this.checked)\">" +
+                        "Filter: <input type=\"checkbox\" onchange=\"boolstate('" + addr + "', 'filter', this.checked)\">" +
+                        "Flip: <input type=\"checkbox\" onchange=\"boolstate('" + addr + "', 'flip', this.checked)\">" +
+                        "Size: <select onchange=\"state('" + addr + "', 'size', this.value)\"><option value=\"1\">1-QQVGA</option><option value=\"3\">3-QCIF</option><option value=\"4\">4-HQVGA</option><option value=\"6\">6-QVGA</option><option value=\"8\">8-CIF</option><option value=\"9\">9-HVGA</option><option value=\"10\">10-VGA</option><option value=\"11\">11-SVGA</option></select>"
+                        "</div>";
+                }
+            }
+
+            function start(addr) {
+                document.getElementById(addr).src = "http://" + addr + "/picture";
+            }
+
+            function stop(addr) {
+                document.getElementById(addr).src = '';
+            }
+
+            async function boolstate(addr, type, val) {
+                state(addr, type, val ? 'on' : 'off');
+            }
+
+            async function state(addr, type, val) {
+                stop(addr);
+                var body = {};
+                body[type] = val;
+                var resp = await window.fetch("http://" + addr + "/api", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
+                start(addr);
+            }
+        </script>
+        <style>
+            body {
+                display: flex;
+                flex-direction: row;
+            }
+            .camera {
+                display: flex;
+                flex-direction: column;
+            }
+            .ctrl {
+                display: flex;
+                flex-direction: row;
+            }
+        </style>
+    </header>
+    <body onload="init()">
+        <div class="camera" addr="192.168.1.113"></div>
+        <div class="camera" addr="192.168.1.100"></div>
+    </body>
+</html>
